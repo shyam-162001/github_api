@@ -12,8 +12,15 @@ getRepositories(String username) async{
     final repos = jsonDecode(response.body);
       List repo = [];
       for (int i = 0; i < repos.length; i++) {
+        final commitResponse = await http.get(Uri.parse(
+            'https://api.github.com/repos/freeCodeCamp/1Aug2015GameDev/commits'
+        ));
+        if (commitResponse.statusCode == 200) {
+          final commits = jsonDecode(commitResponse.body);
+          repos[i]['lastCommit'] = commits[0]['commit']['message'];
+        }
         repo.add(
-            [repos[i]['name'],repos[i]['id'].toString(),repos[i]['html_url'],repos[i]['description']]
+            [repos[i]['name'],repos[i]['id'].toString(),repos[i]['html_url'],repos[i]['description'],repos[i]['lastCommit']]
             //login: repos[i]['login'],
             //id: repos[i]['id'],
             //url: repos[i]['url'],
@@ -76,16 +83,20 @@ class _HomeState extends State<Home> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            Text("Name: "+
                               repos?[index][0],
                               style: Theme.of(context).textTheme.headline6,
                             ),
-                            Text(
+                            Text("ID: "+
                               repos?[index][1],
                               style: Theme.of(context).textTheme.subtitle1,
                             ),
-                            Text(
+                            Text("Description: "+
                               repos?[index][2],
+                              style: Theme.of(context).textTheme.caption,
+                            ),
+                            Text("Last commit: "+
+                              repos?[index][4],
                               style: Theme.of(context).textTheme.caption,
                             ),
                           ],
